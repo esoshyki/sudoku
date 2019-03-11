@@ -1,3 +1,19 @@
+function deepCopy(arr) {
+
+  var returned = [[],[],[],[],[],[],[],[],[]];
+  for (i=0; i<9; i++) {
+
+    for (k=0; k<9; k++) {
+        for(l=0; l<10; l++) {
+          if (arr[i][k] == l) {
+            returned[i][k] = l;
+          }
+        }
+    }
+
+  };
+return returned
+};
 
 
 // Функция вычитания списков
@@ -20,7 +36,6 @@ for (var rowIndex=0; rowIndex < 9; rowIndex++){
     for (var columnIndex=0; columnIndex < 9; columnIndex++) {
         if (solution[rowIndex][columnIndex] != 0) { continue };
         var possibleValues = findPossibleValues( rowIndex, columnIndex, solution);
-
         var possibleValueCount = possibleValues.length;
         if (possibleValueCount == 0) { return false };
         if (possibleValueCount == 1) { solution[rowIndex][columnIndex] = Number(possibleValues.pop())};
@@ -34,7 +49,7 @@ for (var rowIndex=0; rowIndex < 9; rowIndex++){
                
                                                 }; // end of for
 
-                                        
+                                     
 if (!minPossibleValueCountCell) { return true}
 else if (1 < minPossibleValueCountCell[1].length) { break };
                   }  //end of while
@@ -42,13 +57,14 @@ var r = minPossibleValueCountCell[0][0];
 var c = minPossibleValueCountCell[0][1];
 
 for (var v in minPossibleValueCountCell[1]) {
-  var puzzleCopy = Array.from(Object.create(solution));
+
+  var puzzleCopy = deepCopy(solution);
   
   puzzleCopy[r][c] = minPossibleValueCountCell[1][v];
   if (solveHelper(puzzleCopy)) {    
-      for (r=0; r<9; r++) {
-          for (var c=0; c<9; c++) {
-              solution[r][c] = Number(puzzleCopy[r][c]); };
+      for (var d=0; d<9; d++) {
+          for (var e=0; e<9; e++) {
+              solution[d][e] = Number(puzzleCopy[d][e]); };
                       };
                       return true;
                   };
@@ -62,6 +78,7 @@ for (var v in minPossibleValueCountCell[1]) {
 function findPossibleValues(rowIndex, columnIndex, puzzle) {              
 var values = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 values = Intersec(values, getRowValues(rowIndex, puzzle));
+
 values = Intersec(values, getColumnValues(columnIndex, puzzle));
 values = Intersec(values, getBlockValues(rowIndex, columnIndex, puzzle)); 
 return values;
@@ -73,7 +90,7 @@ return values;
 function getRowValues(rowIndex, puzzle) {
   var returned = []
   for (var i=0; i<puzzle[rowIndex].length; i++) {
-      returned.push(Number(puzzle[i]));
+      returned.push(Number(puzzle[rowIndex][i]));
   }
 return (returned);
 };
@@ -96,13 +113,10 @@ function getBlockValues(rowIndex, columnIndex, puzzle) {
 var returned = [];
 var blockRowStart = 3 * (Math.floor(rowIndex/3));
 var blockColumnStart = 3 * (Math.floor(columnIndex/3));
-  var count = 0;
   for (var r=0; r<3; r++) {
       for (var c=0; c<3; c++) {
-          returned[count] = Number(puzzle[blockRowStart + r][blockColumnStart + c]);
-          count += 1;    
+          returned.push(Number(puzzle[blockRowStart + r][blockColumnStart + c]));
       };
-      count += 1;
   };
   return returned
 };
@@ -112,7 +126,6 @@ var blockColumnStart = 3 * (Math.floor(columnIndex/3));
 function solve(puzzle) {
 var answer = Array.from(Object.create(puzzle));
 if (solveHelper(answer)) {
-  console.log(answer);
   return answer;
 }
 return NaN
@@ -122,7 +135,7 @@ return NaN
 
 // ___________________________________________________________________
 module.exports = function solveSudoku(matrix) {
-     solve(matrix);
+    return solve(matrix);
   };
 
 
