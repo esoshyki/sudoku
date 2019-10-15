@@ -1,143 +1,81 @@
 function deepCopy(arr) {
+  const arr2 = []
+  arr.forEach(el => {
+    arr2.push([...el])
+  })
+  return arr2
+}
 
-  var returned = [[],[],[],[],[],[],[],[],[]];
-  for (i=0; i<9; i++) {
-
-    for (k=0; k<9; k++) {
-        for(l=0; l<10; l++) {
-          if (arr[i][k] == l) {
-            returned[i][k] = l;
-          }
-        }
-    }
-
-  };
-return returned
-};
-
-
-// Функция вычитания списков
-// __________________________________________________________
-
-function Intersec(arr1,arr2){
-  arr3 = arr1.filter(word => !(arr2.includes(word)))
-  return arr3;
-  };
-// __________________________________________________________
-
-// Рекурсия
-// _____________________________________________________________
-function solveHelper(solution) {
-var minPossibleValueCountCell = NaN;
-while (true) {
-var minPossibleValueCountCell = NaN;
+function solver(_matrix) {
+    var cellInfo = NaN;
+    while (true) {
+        var cellInfo = NaN;
   
-for (var rowIndex=0; rowIndex < 9; rowIndex++){
-    for (var columnIndex=0; columnIndex < 9; columnIndex++) {
-        if (solution[rowIndex][columnIndex] != 0) { continue };
-        var possibleValues = findPossibleValues( rowIndex, columnIndex, solution);
-        var possibleValueCount = possibleValues.length;
-        if (possibleValueCount == 0) { return false };
-        if (possibleValueCount == 1) { solution[rowIndex][columnIndex] = Number(possibleValues.pop())};
-              
-        if (!minPossibleValueCountCell)
-        { minPossibleValueCountCell = [[rowIndex, columnIndex], possibleValues]; };
-         if ( possibleValueCount < minPossibleValueCountCell[1].length) {
-          { minPossibleValueCountCell = [[rowIndex, columnIndex], possibleValues]; }   
-          } ;
-                                                             };
-               
-                                                }; // end of for
+        for (let rowIndex=0; rowIndex < 9; rowIndex++){
+            for (let columnIndex=0; columnIndex < 9; columnIndex++) {
+                if (_matrix[rowIndex][columnIndex] != 0) continue
+                const _values = getValues( rowIndex, columnIndex, _matrix)
+                const valuesCount = _values.length
+                if (valuesCount == 0) return false
+                if (valuesCount == 1) _matrix[rowIndex][columnIndex] = Number(_values.pop())
+                if (!cellInfo) cellInfo = [[rowIndex, columnIndex], _values]
+                if ( valuesCount < cellInfo[1].length) cellInfo = [[rowIndex, columnIndex], _values]   
+                }
+            }
 
                                      
-if (!minPossibleValueCountCell) { return true}
-else if (1 < minPossibleValueCountCell[1].length) { break };
-                  }  //end of while
-var r = minPossibleValueCountCell[0][0];
-var c = minPossibleValueCountCell[0][1];
+        if (!cellInfo) return true
+        else if (1 < cellInfo[1].length) break 
+        }
 
-for (var v in minPossibleValueCountCell[1]) {
+    const r = cellInfo[0][0];
+    const c = cellInfo[0][1];
 
-  var puzzleCopy = deepCopy(solution);
+    for (let v in cellInfo[1]) {
+
+        const puzzleCopy = deepCopy(_matrix);
   
-  puzzleCopy[r][c] = minPossibleValueCountCell[1][v];
-  if (solveHelper(puzzleCopy)) {    
-      for (var d=0; d<9; d++) {
-          for (var e=0; e<9; e++) {
-              solution[d][e] = Number(puzzleCopy[d][e]); };
-                      };
-                      return true;
-                  };
-              };
+        puzzleCopy[r][c] = cellInfo[1][v];
+        if (solver(puzzleCopy)) {    
+            for (let d=0; d<9; d++) {
+                for (let e=0; e<9; e++) {
+                    _matrix[d][e] = Number(puzzleCopy[d][e]); 
+                    }
+                }
+            return true;
+            }
+        }
 
-              return false;
-                                      };  // end of solveHelper
-// _________________________________________________________________
-// Получение возможных значений
-// _________________________________________________________________
-function findPossibleValues(rowIndex, columnIndex, puzzle) {              
-var values = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-values = Intersec(values, getRowValues(rowIndex, puzzle));
+        return false;
+        }
 
-values = Intersec(values, getColumnValues(columnIndex, puzzle));
-values = Intersec(values, getBlockValues(rowIndex, columnIndex, puzzle)); 
-return values;
-};
-// _________________________________________________________________ 
+const getValues = (rowInd, colInd, puzzle) => {
+    const _Allvalues = [1,2,3,4,5,6,7,8,9];
+    const _numbers = [];
+    const blockRowStart = 3 * (Math.floor(rowInd/3));
+    const blockColumnStart = 3 * (Math.floor(colInd/3));
+                                      
+    puzzle[rowInd].forEach(el => {
+        _numbers.push(Number(el))
+        })
+    puzzle.forEach(el => {
+        _numbers.indexOf(Number(el[colInd])) < 0 ? _numbers.push(Number(el[colInd])) : NaN 
+        })
+                                      
+    for (let i=0; i<3; i++) {
+        for (let k=0; k<3; k++) {
+            const val = Number(puzzle[blockRowStart + i][blockColumnStart + k]);
+            _numbers.indexOf(val) < 0 ? _numbers.push(val) : NaN
+            }
+        }
+    return _Allvalues.filter(el => !(_numbers.includes(el)))
+    }
 
-// Получение значений строки
-// _________________________________________________________________
-function getRowValues(rowIndex, puzzle) {
-  var returned = []
-  for (var i=0; i<puzzle[rowIndex].length; i++) {
-      returned.push(Number(puzzle[rowIndex][i]));
-  }
-return (returned);
-};
-// __________________________________________________________________
+const solve = (puzzle) => solver(Array.from(Object.create(puzzle))) ? Array.from(Object.create(puzzle)) : NaN
 
-// Получение значений столбца
-// __________________________________________________________________
-function getColumnValues(columnIndex, puzzle) {
-var returned = [];
-for (var r=0; r<9; r++) {
-  returned[r] = Number(puzzle[r][columnIndex])
-};
-return returned
-};
-// __________________________________________________________________
-
-// Получение значений ячейки 
-// __________________________________________________________________
-function getBlockValues(rowIndex, columnIndex, puzzle) {
-var returned = [];
-var blockRowStart = 3 * (Math.floor(rowIndex/3));
-var blockColumnStart = 3 * (Math.floor(columnIndex/3));
-  for (var r=0; r<3; r++) {
-      for (var c=0; c<3; c++) {
-          returned.push(Number(puzzle[blockRowStart + r][blockColumnStart + c]));
-      };
-  };
-  return returned
-};
-// __________________________________________________________________
-
-// Основная функция
-function solve(puzzle) {
-var answer = Array.from(Object.create(puzzle));
-if (solveHelper(answer)) {
-  return answer;
-}
-return NaN
-};
-
-
-
-// ___________________________________________________________________
 module.exports = function solveSudoku(matrix) {
-    return solve(matrix);
-  };
-
+  return solve(matrix);
+};
 
 
  
