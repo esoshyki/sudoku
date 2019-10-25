@@ -71,7 +71,7 @@ const getValues = (rowInd, colInd, puzzle) => {
     return _Allvalues.filter(el => !(_numbers.includes(el)))
     }
 
-const solve = (puzzle) => solver(Array.from(Object.create(puzzle))) ? Array.from(Object.create(puzzle)) : NaN
+const solve = (puzzle) => solver(puzzle) ? puzzle : NaN
 
 module.exports = function solveSudoku(matrix) {
   return solve(matrix);
